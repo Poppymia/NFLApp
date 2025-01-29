@@ -1,0 +1,135 @@
+﻿@* @model IEnumerable<Team>
+@{
+    ViewData["Title"] = "NFL Teams";
+    string Active(string filter, string selected) //method 
+    {
+        return (filter.ToLower() == selected.ToLower()) ? //to make sure program doesn't make a mistake based on case
+            "active" : "";
+            //will receive two values that are compared that returns "active" and if not then it returns empty string
+
+    } //receiving a model called IEnumerable values
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <h3 class="mt-3">Conference</h3> <!--mt = margin-top of value 3-->
+        <div class="list-group">
+
+            <!--when All is clicked go to Index action method-->
+            <!--ActiveDiv is set in HomeController--> 
+            <a asp-action="Index"
+               asp-route-activeConf="all"
+               asp-route-activeDiv="@ViewBag.ActiveDiv"
+               class="list-group-item @Active("all",
+                                      ViewBag.ActiveConf)"> <!--list-group-item is a class from bootstrap-->
+                                      <!--this is where the Active method is called from above!!-->
+                                      <!--if both params are the same it'll return "active", else "" is returned-->
+                                      <!--here, checks to see if selected is "all"-->
+
+                                      <!--if "active" was always part of the class instead of the calling method,:-->
+                                      <!--all button would always be selected no matter what button is clicked on-->
+                All
+            </a>
+            @foreach (Conference conf in ViewBag.Conferences) //came from HomeController
+            //for each value in the conf list, produce a link 
+            {
+                <a asp-action="Index"
+                   asp-route-activeConf="@conf.ConferenceID"
+                   asp-route-activeDiv="@ViewBag.ActiveDiv"
+                   class="list-group-item @Active(conf.ConferenceID,
+                                           ViewBag.ActiveConf)">
+                    @conf.Name
+                </a>
+            }
+        </div>
+        <h3 class="mt-3">Division</h3>
+        <div class="list-group">
+            <a asp-action="Index"
+               asp-route-activeConf="@ViewBag.ActiveConf"
+               asp-route-activeDiv="all"
+               class="list-group-item @Active("all",
+                                       ViewBag.ActiveDiv)">
+                All
+            </a>
+            @foreach (Division div in ViewBag.Divisions)
+            {
+                <a asp-action="Index"
+                   asp-route-activeConf="@ViewBag.ActiveConf"
+                   asp-route-activeDiv="@div.DivisionID"
+                   class="list-group-item @Active(div.DivisionID,
+                                           ViewBag.ActiveDiv)">
+                    @div.Name
+                </a>
+            }
+        </div>
+    </div>
+    <div class="col-md-9">
+        <ul class="list-inline"> <!--boostrap go look at what it means-->
+            @foreach (Team team in Model) 
+            {
+                <li class="list-inline-item">
+                    <img src="~/images/@team.LogoImage"
+                         alt="@team.Name"
+                         title="@team.Name |
+                         @team.Conference.Name @team.Division.Name" /> <!--shows where team belongs when hovering-->
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+*@
+
+@model TeamsViewModel //use small model for declaring at the top and use capital Model when calling later
+@{ ViewData["Title"] = "NFL Teams"; // helper function not needed 
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <h3 class="mt-3">Conference</h3>
+        <div class="list-group">
+            <a asp-action="Index"
+                asp-route-activeConf="all"
+                asp-route-activeDiv="@Model.ActiveDiv"
+                class="list-group-item
+                       @Model.CheckActiveConf("all")">
+                All</a>
+ 
+            @foreach (Conference conf in Model.Conferences) {
+                <a asp-action="Index"
+                   asp-route-activeConf="@conf.ConferenceID"
+                   asp-route-activeDiv="@Model.ActiveDiv"
+                   class="list-group-item 
+                       @Model.CheckActiveConf(conf.ConferenceID)">
+                    @conf.Name</a>
+            }
+        </div>
+
+            <h3 class="mt-3">Division</h3>
+            <div class="list-group">
+                <a asp-action="Index" asp-route-activeConf="@Model.ActiveConf"
+                asp-route-activeDiv="all"
+                class="list-group-item @Model.CheckActiveDiv("all")"> 
+                All
+                </a>
+            @foreach(Division div in Model.Divisions)
+            {
+                <a asp-action="Index" asp-route-activeConf="@Model.ActiveConf"
+                asp-route-activeDiv="@div.DivisionID"
+                class="list-group-item @Model.CheckActiveDiv(div.DivisionID)">
+                @div.Name
+                </a>
+            }
+            </div>
+    </div>
+        <div class="col-md-9">
+            <ul class="list-inline">
+            @foreach (Team team in Model.Teams)
+            {
+                <a asp-action="Details" asp-route-id="@team.TeamID">
+                    <img src="~/images/@team.LogoImage" alt="@team.Name"
+                    title="@team.Name | @team.Conference.Name | team.Division.Name"/>
+                </a>
+            }
+            </ul>
+        </div>
+</div>
